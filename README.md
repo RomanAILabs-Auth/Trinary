@@ -1,28 +1,36 @@
 # Trinary
 
-## 1. Hero section
+Pure machine-code compute engine + Python/.tri front-end, built for maximum throughput under strict quality gates.
 
-Trinary is a dual-repo system built for one objective: maximum real-world throughput from hand-written machine code.  
-The engine (`Trinary`) is pure x86-64/AArch64 assembly for hot kernels, with zero LLVM dependency and no libc in hot paths.  
-The front-end (`TriPy`) and `.tri` language route into the same IR and dispatch table, so both developer paths hit the same optimized execution core with no feature-branching inside hot loops.
+Trinary is a dual-stack repository:
+- **Trinary Engine**: hand-written x86-64/AArch64 assembly kernels, C ABI, load-time dispatch.
+- **TriPy**: Python front-end and `.tri` execution path using the same engine and IR pipeline.
 
-**Source of truth:** [`trinary-tripy-architecture.md`](./trinary-tripy-architecture.md)
+The architecture contract is maintained in [`trinary-tripy-architecture.md`](./trinary-tripy-architecture.md) and is treated as source of truth.
 
-## 2. Key Differentiators
+---
 
-- **Machine-code-first core:** hand-written assembly kernels with C glue only where required for ABI, dispatch, and platform runtime.
-- **Dual front-ends, one engine:** `tripy file.py`, `tripy file.tri`, and native `trinary` CLI all converge on the same kernel backend.
-- **Non-negotiable kernel focus:** neuromorphic `braincore_u8`, Harding gate `i16`, bitpacked lattice flip, Clifford rotor, and prime sieve.
-- **No hot-path feature checks:** load-time dispatch resolves best variants once; hot loops execute direct function pointers.
-- **Quality gates are enforced:** perf gate rejects regressions above **3%** against baseline for tracked kernels.
-- **Deterministic engineering contract:** architecture and phase status are maintained as a living contract, not a loose roadmap.
-- **Reproducible benchmark harness:** machine-generated JSON/Markdown outputs for both kernel-level and cross-language comparisons.
+## What Makes Trinary Different
 
-## 3. Current Performance
+- **Hot path is assembly-first**: no LLVM dependency in the core execution model, no libc in hot loops.
+- **One backend, two developer paths**: `tripy file.py` and `tripy file.tri` converge on the same machine-code engine.
+- **Kernel set is explicit and performance-driven**:
+  - `braincore_u8` neuromorphic lattice
+  - `harding_gate_i16`
+  - bitpacked lattice flip
+  - Clifford rotor (`rotor_cl4`)
+  - prime sieve
+- **Dispatch is resolved at init**: no feature branching inside hot loops.
+- **Performance is gated**: regressions above 3% fail the perf gate.
+- **Release discipline exists in-repo**: install scripts, release checks, benchmark harness, changelog, security and contribution policy.
 
-### Engine Kernel Baseline (Architecture Reference Host)
+---
 
-`build/bin/trinary-bench` with warmup + timed replicates, release mode.
+## Performance Snapshot
+
+### Engine Baseline (Architecture Reference Numbers)
+
+`build/bin/trinary-bench` (warmup + timed replicates, release).
 
 | Kernel | Variant | Workload | Best seconds | Throughput |
 |---|---|---|---:|---:|
@@ -31,27 +39,29 @@ The front-end (`TriPy`) and `.tri` language route into the same IR and dispatch 
 | `lattice_flip` | `avx2` | 64 MiB bitpacked lattice, 64 iters | 0.504 | **68.2 Gbit/s** |
 | `prime_sieve` | `scalar` | limit=20,000,000, 8 iters | 0.118 | **1350 MLimits/s** |
 
-### Cross-Language Local Snapshot (Prime Sieve)
+### Cross-Language Prime Benchmark (Local Host)
 
-Prime limit: `5,000,000`, best-of-3, same machine.
+Prime limit: `5,000,000`, best-of-3, validated by matching `pi(n)` result.
 
-| Runtime | Available | Best seconds | Throughput (M nums/s) | `pi(5,000,000)` |
-|---|---:|---:|---:|---:|
-| TriPy (`.tri` via CLI) | yes | 0.003334 | **1499.70** | 348513 |
-| Trinary (native) | yes | 0.003692 | **1354.28** | 348513 |
-| Go 1.26 (compiled) | yes | 0.028813 | 173.53 | 348513 |
-| C++17 -O3 (compiled) | yes | 0.030871 | 161.97 | 348513 |
-| Node.js 22 (pure) | yes | 0.039817 | 125.58 | 348513 |
-| Python 3.13 (pure) | yes | 0.057928 | 86.31 | 348513 |
-| Mojo | no | - | - | - |
-| Rust (compiled) | no | - | - | - |
+| Runtime | Best seconds | Throughput (M nums/s) | `pi(5,000,000)` |
+|---|---:|---:|---:|
+| TriPy (`.tri` via CLI) | 0.003334 | **1499.70** | 348513 |
+| Trinary (native) | 0.003692 | **1354.28** | 348513 |
+| Go 1.26 (compiled) | 0.028813 | 173.53 | 348513 |
+| C++17 -O3 (compiled) | 0.030871 | 161.97 | 348513 |
+| Node.js 22 (pure) | 0.039817 | 125.58 | 348513 |
+| Python 3.13 (pure) | 0.057928 | 86.31 | 348513 |
 
-Raw artifacts:
+Raw outputs and harness:
 - `benchmarks/elite_results.md`
 - `benchmarks/elite_results.json`
 - `benchmarks/elite_lang_bench.py`
 
-## 4. Quick Start
+Note: Mojo and Rust lanes are supported in the harness but omitted from the table when toolchains are unavailable on the current host.
+
+---
+
+## Quick Start
 
 ### Windows (PowerShell)
 
@@ -62,7 +72,7 @@ python -m tripy.cli --version
 python -m tripy.cli "language/examples/prime.tri"
 ```
 
-Install locally:
+Install:
 
 ```powershell
 ./scripts/install_trinary.ps1 -Config Release
@@ -78,41 +88,58 @@ python -m tripy.cli --version
 python -m tripy.cli "language/examples/prime.tri"
 ```
 
-Install locally:
+Install:
 
 ```bash
 ./scripts/install_trinary.sh
 ./scripts/install_tripy.sh
 ```
 
-## 5. Project Status
+---
 
-- **Phase 0:** complete (foundation, structure, baseline quality gates)
-- **Phase 1:** in progress (remaining machine-code kernel work + hardening tasks)
-- **Current state:** engine + TriPy are functional, tested, and benchmarked with release checks in place.
+## Project Status
 
-For exact status, decisions, and open items, read:
+- **Phase 0**: complete
+- **Phase 1**: in progress
+- Engine and TriPy are live, tested, benchmarked, and release-checked in-repo.
+
+For detailed status and decisions:
 - [`trinary-tripy-architecture.md`](./trinary-tripy-architecture.md)
 - [`CHANGELOG.md`](./CHANGELOG.md)
 
-## 6. Philosophy
+---
 
-Trinary is built on a strict rule: quality does not yield to speed-of-shipping. Kernel performance is earned through explicit machine-code work, measured with reproducible harnesses, and guarded by hard regression gates. Architecture is treated as contract, not commentary.
+## Engineering Standards
 
-## 7. License
+Trinary is quality-first by design:
+- kernel behavior must remain reference-correct
+- performance changes must be measured and reproducible
+- optimizer behavior-changing transforms remain explicit opt-in
+- release checks are scriptable and repeatable
+
+Run full verification:
+
+- Windows: `./scripts/release_check.ps1 -RunTests`
+- POSIX: `./scripts/release_check.sh 1`
+
+---
+
+## License
 
 This repository is licensed under the **RomanAILabs Business Source License 1.1 (RBSL 1.1)**.
 
-- Non-commercial research, education, and evaluation are permitted per license terms.
-- Commercial use requires a separate written commercial license from RomanAILabs unless covered by the Additional Use Grant conditions in `LICENSE`.
-- Each version automatically converts to **Apache-2.0** after the defined 3-year Change Date (or earlier at RomanAILabs' discretion).
+- Non-commercial research, education, and evaluation are allowed under license terms.
+- Commercial use requires a separate written commercial license unless covered by the Additional Use Grant in `LICENSE`.
+- Version-level conversion to **Apache-2.0** occurs after the defined 3-year Change Date (or earlier at RomanAILabs discretion).
 
-Commercial licensing contact:
+Commercial licensing and enterprise contact:
 - `daniel@romanailabs.com`
 - `romanailabs@gmail.com`
 - `romanailabs.com`
 
-## 8. Honored Collaborators
+---
+
+## Honored Collaborators
 
 RomanAILabs honors collaboration with:
 - Grok / xAI
@@ -120,14 +147,6 @@ RomanAILabs honors collaboration with:
 - ChatGPT-5.4 / OpenAI
 - Cursor
 
-To contribute:
-- Follow `CONTRIBUTING.md` quality gates and coding standards.
-- Run release checks before opening changes:
-  - Windows: `./scripts/release_check.ps1 -RunTests`
-  - POSIX: `./scripts/release_check.sh 1`
-- Do not bypass performance gates for kernel/compiler path changes.
-
-For commercial licensing, enterprise deployment, custom kernel development, or support agreements, contact:
-- `daniel@romanailabs.com`
-- `romanailabs@gmail.com`
-- `romanailabs.com`
+Contributions are welcome under repository quality gates:
+- See [`CONTRIBUTING.md`](./CONTRIBUTING.md)
+- See [`SECURITY.md`](./SECURITY.md)
