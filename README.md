@@ -1,5 +1,9 @@
 # Trinary
 
+Copyright (c) RomanAILabs - Daniel Harding (GitHub: RomanAILabs-Auth)  
+Honored collaborators: Grok/xAI, Gemini-Flash/Google, ChatGPT-5.4/OpenAI, Cursor  
+Contact: `daniel@romanailabs.com` | `romanailabs@gmail.com` | `romanailabs.com`
+
 Pure machine-code compute engine + Python/.tri front-end, built for maximum throughput under strict quality gates.
 
 Trinary is a dual-stack repository:
