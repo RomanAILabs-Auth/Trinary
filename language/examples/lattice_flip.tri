@@ -1,0 +1,12 @@
+# lattice_flip.tri — bit-packed lattice flip via Harding Gate.
+# 16M trits, 1000 flip iterations. The interpreter dispatches to the AVX2
+# machine-code kernel (trinary_v1_lattice_flip_avx2).
+print("Trinary lattice flip benchmark")
+
+lattice: trit[16777216] = 1
+
+par spacetime:
+    for t in range(0, 1000):
+        lattice = lattice * -1
+
+print("lattice flip complete")

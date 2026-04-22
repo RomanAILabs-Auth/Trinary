@@ -1,0 +1,34 @@
+# clang-tidy configuration for the Trinary engine.
+# Focused set: correctness, portability, security, performance. No style-only checks
+# that would fight .clang-format (formatting is a separate gate).
+
+Checks: >
+  -*,
+  bugprone-*,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-macro-parentheses,
+  cert-*,
+  -cert-err33-c,
+  clang-analyzer-*,
+  misc-*,
+  -misc-include-cleaner,
+  -misc-no-recursion,
+  performance-*,
+  portability-*,
+  readability-*,
+  -readability-identifier-length,
+  -readability-magic-numbers,
+  -readability-function-cognitive-complexity,
+  -readability-else-after-return
+
+WarningsAsErrors: ''
+
+HeaderFilterRegex: '^.*/engine/(include|src|compiler|tests)/'
+
+FormatStyle: file
+
+CheckOptions:
+  - { key: readability-braces-around-statements.ShortStatementLines, value: '2' }
+  - { key: readability-identifier-naming.GlobalConstantCase,         value: 'UPPER_CASE' }
+  - { key: readability-identifier-naming.EnumConstantCase,           value: 'UPPER_CASE' }
+  - { key: readability-identifier-naming.FunctionCase,               value: 'lower_case' }

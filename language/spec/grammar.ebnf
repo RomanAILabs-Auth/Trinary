@@ -1,0 +1,69 @@
+(* ============================================================================
+ * Trinary Language v0 — Formal grammar (EBNF)
+ *
+ * v0 is a strict subset accepted by the interpreter in engine/compiler/parser.c.
+ * Phase 2 of the architecture expands this to a full compiled language with
+ * direct x86-64 machine-code emission.
+ *
+ * Lexical:
+ *   NEWLINE  := '\n' | '\r\n'
+ *   COMMENT  := '#' {any-char except NEWLINE} NEWLINE
+ *   IDENT    := [A-Za-z_] [A-Za-z0-9_]*
+ *   INT      := [0-9]+
+ *   STRING   := '"' { any-char except '"' or NEWLINE } '"'
+ *   INDENT / DEDENT — Python-style, leading-whitespace sensitive.
+ * ========================================================================== *)
+
+program        = { NEWLINE } , { statement , { NEWLINE } } ;
+
+statement      = print_stmt
+               | decl
+               | par_block
+               | braincore_stmt
+               | prime_stmt ;
+
+print_stmt     = "print" , "(" , STRING , ")" ;
+
+decl           = IDENT , ":" , [ "soa" ] , type , [ "=" , int_literal ] ;
+
+type           = "trit" , "[" , INT , { "*" , INT } , "]"
+               | "cl4"  , "[" , INT , "]" ;
+
+int_literal    = [ "-" ] , INT ;
+
+par_block      = "par" , [ "spacetime" ] , ":" , NEWLINE ,
+                 INDENT , for_loop , DEDENT
+               | "par" , "for" , for_tail ;
+
+for_loop       = "for" , for_tail ;
+
+for_tail       = IDENT , "in" , "range" , "(" , INT , "," , INT , ")" ,
+                 ":" , NEWLINE ,
+                 INDENT , { body_stmt , { NEWLINE } } , DEDENT ;
+
+body_stmt      = flip_stmt | rotate_stmt ;
+
+flip_stmt      = IDENT , "=" , IDENT , "*" , "-" , INT ;   (* only * -1 supported *)
+
+rotate_stmt    = IDENT , "=" , IDENT , "." , IDENT , "(" , ")" ;  (* rotor stub *)
+
+braincore_stmt = "braincore" , [ "(" , INT , [ "," , INT ] , ")" ] ;
+
+prime_stmt     = "prime" , [ "(" , INT , ")" ] ;
+
+(* ---------------------------------------------------------------------------
+ * Semantics:
+ *   - `lattice: trit[N] = V` allocates a bit-packed N-trit lattice,
+ *     initialized to all-V (-1 => 0xFF fill, else 0x00).
+ *   - `par spacetime:\n    for t in range(0, K):\n        lattice = lattice * -1`
+ *     dispatches to trinary_v1_lattice_flip(lat, N/64, K, 0xFFFF...FFFF).
+ *   - `braincore(N, I)` dispatches to trinary_v1_braincore_u8 with N neurons
+ *     and I iterations (defaults: 4_000_000, 1000).
+ *   - `prime(N)` dispatches to trinary_v1_prime_sieve_u64 with upper bound N
+ *     (default when omitted: 1_000_000).
+ *   - `print("...")` writes the string literal to stdout, followed by '\n'.
+ *   - `cl4[N]` reserves a slot name; arithmetic is a Phase 2 feature.
+ *
+ * Any production not listed above is a syntax error and the interpreter
+ * reports the source location.
+ * ---------------------------------------------------------------------------*)

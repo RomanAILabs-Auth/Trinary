@@ -1,0 +1,107 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  # --------------------------------------------------------------------------
+  # Primary target: Windows x86-64 via bundled Zig toolchain (matches local).
+  # --------------------------------------------------------------------------
+  windows-build-and-test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install Zig 0.14.x (CI-friendly stable)
+        uses: goto-bus-stop/setup-zig@v2
+        with:
+          version: 0.14.0
+
+      - name: Provision tools/zig (build.ps1 expects bundled zig)
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force tools\zig | Out-Null
+          $z = (Get-Command zig).Source
+          Copy-Item $z tools\zig\zig.exe
+          # zig needs its lib/ tree alongside the binary.
+          $zigRoot = Split-Path (Split-Path $z)
+          if (Test-Path (Join-Path $zigRoot 'lib')) {
+            Copy-Item -Recurse -Force (Join-Path $zigRoot 'lib') tools\zig\lib
+          }
+
+      - name: Install Python build deps
+        run: python -m pip install --upgrade pip pytest hypothesis ruff mypy
+
+      - name: Build (Release)
+        shell: pwsh
+        run: ./build.ps1 -Config Release
+
+      - name: Run tests
+        shell: pwsh
+        run: ./scripts/run_tests.ps1
+
+      - name: Smoke — native CLI
+        shell: pwsh
+        run: |
+          ./build/bin/trinary.exe --version
+          ./build/bin/trinary.exe --features
+          ./build/bin/trinary.exe braincore 4096 10
+
+      - name: Smoke — tripy CLI
+        shell: pwsh
+        run: |
+          $env:PYTHONPATH = "$PWD\tripy\src"
+          python -m tripy.cli --version
+          python -m tripy.cli --features
+          python -m tripy.cli braincore --neurons 4096 --iters 10
+          python -m tripy.cli language/examples/hello.tri
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: trinary-windows-x64
+          path: |
+            build/bin/trinary.exe
+            build/lib/libtrinary.a
+            tripy/src/tripy/_core*.pyd
+
+  # --------------------------------------------------------------------------
+  # Portability check: Linux x86-64 scalar + AVX2 asm path.
+  # Proves the C layer is POSIX-clean and the GAS Intel asm assembles on GCC.
+  # Python extension is not built here yet (Phase 3 wheel work).
+  # --------------------------------------------------------------------------
+  linux-build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install clang
+        run: sudo apt-get update && sudo apt-get install -y clang
+
+      - name: Build engine (Release)
+        env:
+          CC: clang
+        run: ./build.sh Release 1
+
+      - name: Smoke — native CLI
+        run: |
+          ./build/bin/trinary --version
+          ./build/bin/trinary --features
+          ./build/bin/trinary braincore 4096 10
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: trinary-linux-x64
+          path: |
+            build/bin/trinary
+            build/lib/libtrinary.a

@@ -1,0 +1,63 @@
+{
+  "schema": "trinary.bench.v1",
+  "version": "trinary 0.1.0 (clang, x86_64, release)",
+  "cpu_features": "sse2=1 avx=1 avx2=1 avx512f=0 bmi2=1 fma=1",
+  "results": [
+    {
+      "name": "braincore_u8",
+      "variant": "avx2",
+      "replicates": 10,
+      "warmup": 3,
+      "seconds": {
+        "min": 0.592634,
+        "median": 0.598094,
+        "mean": 0.606851,
+        "max": 0.668664,
+        "stddev": 0.023095
+      },
+      "gneurons_per_sec_best": 6.75
+    },
+    {
+      "name": "harding_gate_i16",
+      "variant": "avx2",
+      "replicates": 10,
+      "warmup": 3,
+      "seconds": {
+        "min": 0.450873,
+        "median": 0.45731,
+        "mean": 0.458441,
+        "max": 0.471487,
+        "stddev": 0.005767
+      },
+      "gelems_per_sec_best": 2.381
+    },
+    {
+      "name": "lattice_flip",
+      "variant": "avx2",
+      "replicates": 10,
+      "warmup": 3,
+      "seconds": {
+        "min": 0.50415,
+        "median": 0.523192,
+        "mean": 0.565249,
+        "max": 0.813419,
+        "stddev": 0.10135
+      },
+      "gbits_per_sec_best": 68.154
+    },
+    {
+      "name": "prime_sieve",
+      "variant": "scalar",
+      "replicates": 10,
+      "warmup": 3,
+      "seconds": {
+        "min": 0.118489,
+        "median": 0.119782,
+        "mean": 0.120878,
+        "max": 0.127792,
+        "stddev": 0.003225
+      },
+      "mlimits_per_sec_best": 1350.341
+    }
+  ]
+}

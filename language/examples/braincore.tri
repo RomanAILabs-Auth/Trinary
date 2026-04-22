@@ -1,0 +1,4 @@
+# braincore.tri — canonical 8-bit neuromorphic lattice benchmark.
+print("Trinary braincore benchmark")
+braincore(4000000, 1000)
+print("done")

@@ -1,0 +1,74 @@
+{
+  "host": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.13.2",
+    "limit": 5000000,
+    "runs": 3
+  },
+  "results": [
+    {
+      "name": "TriPy (.tri via CLI)",
+      "available": true,
+      "seconds": 0.003334,
+      "mnums_per_sec": 1499.7000599880023,
+      "prime_count": 348513,
+      "note": ""
+    },
+    {
+      "name": "Trinary (native)",
+      "available": true,
+      "seconds": 0.003692,
+      "mnums_per_sec": 1354.2795232936078,
+      "prime_count": 348513,
+      "note": ""
+    },
+    {
+      "name": "Go 1.26 (compiled)",
+      "available": true,
+      "seconds": 0.0288132,
+      "mnums_per_sec": 173.53157580553355,
+      "prime_count": 348513,
+      "note": ""
+    },
+    {
+      "name": "C++17 -O3 (compiled)",
+      "available": true,
+      "seconds": 0.0308706,
+      "mnums_per_sec": 161.9664016896335,
+      "prime_count": 348513,
+      "note": ""
+    },
+    {
+      "name": "Node.js 22 (pure)",
+      "available": true,
+      "seconds": 0.0398166,
+      "mnums_per_sec": 125.57576488198389,
+      "prime_count": 348513,
+      "note": ""
+    },
+    {
+      "name": "Python 3.13 (pure)",
+      "available": true,
+      "seconds": 0.0579278,
+      "mnums_per_sec": 86.31434302700949,
+      "prime_count": 348513,
+      "note": ""
+    },
+    {
+      "name": "Mojo",
+      "available": false,
+      "seconds": null,
+      "mnums_per_sec": null,
+      "prime_count": null,
+      "note": "mojo not installed"
+    },
+    {
+      "name": "Rust (compiled)",
+      "available": false,
+      "seconds": null,
+      "mnums_per_sec": null,
+      "prime_count": null,
+      "note": "rustc not installed"
+    }
+  ]
+}

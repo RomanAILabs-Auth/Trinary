@@ -1,0 +1,76 @@
+# ==========================================================================
+# Root-level pyproject.toml — monorepo-wide tool configuration.
+#
+# This file configures ruff, mypy, pytest, and similar tooling ACROSS the
+# entire repository (tripy/, benchmarks/, scripts/, tools/*). It deliberately
+# does NOT declare a buildable project; each shipping Python package (today:
+# tripy/) owns its own pyproject.toml with [project] metadata.
+#
+# Decision D-008 (see architecture MD §8) pins the C/asm toolchain to Zig,
+# so CMake / scikit-build-core / cibuildwheel configuration will live in the
+# per-package pyproject.toml when that phase (Phase 3 wheel work) opens.
+# ==========================================================================
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = [
+    "build",
+    "legacy",
+    "tools/zig",
+]
+
+[tool.ruff.lint]
+select = [
+    "E", "F", "W",     # pycodestyle + pyflakes
+    "I",               # isort
+    "N",               # pep8-naming
+    "B",               # bugbear
+    "UP",              # pyupgrade
+    "SIM",             # flake8-simplify
+    "RUF",             # ruff-native rules
+    "PL",              # pylint subset
+    "PT",              # pytest style
+]
+ignore = [
+    "PLR0913",         # too many arguments (kernels genuinely have many)
+    "PLR2004",         # magic values are fine in benchmarks / tests
+    "SIM108",          # "use ternary" — clarity beats terseness in kernels
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests legitimately use `assert`, subprocess-with-literal-args, and inline constants.
+"**/tests/**" = ["PLR2004", "S101", "S603", "S607"]
+"benchmarks/**" = ["PLR2004", "S603", "S607"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+exclude = [
+    "^build/",
+    "^legacy/",
+    "^tools/zig/",
+]
+
+[[tool.mypy.overrides]]
+# The compiled C extension is typed via the .pyi stub that ships with tripy/.
+module = ["tripy._core"]
+ignore_missing_imports = false
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tripy/tests", "benchmarks/tests"]
+addopts = "-ra -q"
+filterwarnings = [
+    "error",                              # warnings are errors in tests
+    "ignore::DeprecationWarning:pytest",  # but not from pytest's own deprecations
+]

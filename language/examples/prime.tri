@@ -1,0 +1,4 @@
+# prime.tri — prime counting via direct kernel dispatch.
+print("Trinary prime benchmark")
+prime(50000000)
+print("done")

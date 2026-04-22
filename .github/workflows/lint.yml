@@ -1,0 +1,33 @@
+name: lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: python -m pip install --upgrade pip ruff mypy
+      - name: ruff
+        run: ruff check tripy/src tripy/tests
+      - name: ruff format --check
+        run: ruff format --check tripy/src tripy/tests
+      - name: mypy --strict
+        run: mypy --strict tripy/src/tripy
+
+  c-format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: clang-format check
+        run: |
+          sudo apt-get update && sudo apt-get install -y clang-format
+          find engine -name '*.c' -o -name '*.h' | xargs clang-format --dry-run --Werror

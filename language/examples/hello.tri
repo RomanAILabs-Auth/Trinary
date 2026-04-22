@@ -1,0 +1,3 @@
+# hello.tri — minimal TriPy/Trinary smoke test.
+print("hello from trinary")
+print("engine: machine-code kernels, python front-end")
