@@ -1,4 +1,5 @@
 """Ensure `tripy` is importable from src/ during development test runs."""
+
 from __future__ import annotations
 
 import sys

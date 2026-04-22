@@ -5,9 +5,10 @@ Collaborators honored: Grok/xAI, Gemini-Flash/Google, ChatGPT-5.4/OpenAI, Cursor
 Contact: daniel@romanailabs.com, romanailabs@gmail.com
 Website: romanailabs.com
 """
+
 from __future__ import annotations
 
-from typing import TypedDict
+from typing import TypedDict, cast
 
 from . import _core
 
@@ -54,23 +55,21 @@ def active_variant(kernel: str) -> str:
     return _core.active_variant(kernel)
 
 
-def braincore(neurons: int = 4_000_000,
-              iterations: int = 1000,
-              threshold: int = 200) -> BraincoreResult:
+def braincore(
+    neurons: int = 4_000_000, iterations: int = 1000, threshold: int = 200
+) -> BraincoreResult:
     """Run the 8-bit LIF neuromorphic lattice kernel."""
-    return _core.braincore(neurons, iterations, threshold)
+    return cast(BraincoreResult, _core.braincore(neurons, iterations, threshold))
 
 
-def harding_gate(count: int = 16 * 1024 * 1024,
-                 iterations: int = 64) -> HardingResult:
+def harding_gate(count: int = 16 * 1024 * 1024, iterations: int = 64) -> HardingResult:
     """Run the Harding-Gate int16 kernel: out = (a*b) - (a^b)."""
-    return _core.harding_gate(count, iterations)
+    return cast(HardingResult, _core.harding_gate(count, iterations))
 
 
-def lattice_flip(bits: int = 1 << 24,
-                 iterations: int = 1000) -> LatticeFlipResult:
+def lattice_flip(bits: int = 1 << 24, iterations: int = 1000) -> LatticeFlipResult:
     """Run the bit-packed lattice flip kernel."""
-    return _core.lattice_flip(bits, iterations)
+    return cast(LatticeFlipResult, _core.lattice_flip(bits, iterations))
 
 
 def run_tri(path: str) -> int:

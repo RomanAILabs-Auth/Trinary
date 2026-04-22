@@ -19,6 +19,7 @@ v0.1 contract:
 
 Phase 2 of the architecture plan replaces this with full IR lowering.
 """
+
 from __future__ import annotations
 
 import ast
@@ -57,9 +58,11 @@ def _detect_fast_path(fn: Callable[..., Any]) -> str | None:
     if func_def is None:
         return None
     for stmt in func_def.body:
-        target = stmt
+        target: ast.AST | None = stmt
         if isinstance(stmt, ast.Return):
-            target = stmt.value  # type: ignore[assignment]
+            target = stmt.value
+        if target is None:
+            continue
         if isinstance(target, ast.Expr):
             target = target.value
         if isinstance(target, ast.Call):

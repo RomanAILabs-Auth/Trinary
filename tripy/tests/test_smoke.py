@@ -1,4 +1,5 @@
 """End-to-end smoke tests for TriPy."""
+
 from __future__ import annotations
 
 import json
@@ -65,7 +66,7 @@ def test_run_tri_hello(tmp_path: Path) -> None:
 
 def test_run_tri_bad_syntax(tmp_path: Path) -> None:
     p = tmp_path / "bad.tri"
-    p.write_text('%% not valid %%\n', encoding="utf-8")
+    p.write_text("%% not valid %%\n", encoding="utf-8")
     rc = tripy.run_tri(str(p))
     assert rc != 0
 
@@ -90,7 +91,9 @@ def test_accelerate_unknown_body_is_passthrough() -> None:
 def test_cli_version() -> None:
     rc = subprocess.run(
         [sys.executable, "-m", "tripy.cli", "--version"],
-        capture_output=True, text=True, check=False,
+        capture_output=True,
+        text=True,
+        check=False,
     )
     assert rc.returncode == 0
     assert "tripy 0.1.0" in rc.stdout
@@ -99,7 +102,9 @@ def test_cli_version() -> None:
 def test_cli_braincore_emits_json() -> None:
     rc = subprocess.run(
         [sys.executable, "-m", "tripy.cli", "braincore", "4096", "5"],
-        capture_output=True, text=True, check=False,
+        capture_output=True,
+        text=True,
+        check=False,
     )
     assert rc.returncode == 0
     data = json.loads(rc.stdout)
@@ -111,7 +116,9 @@ def test_cli_runs_tri_example() -> None:
     example = ROOT / "language" / "examples" / "hello.tri"
     rc = subprocess.run(
         [sys.executable, "-m", "tripy.cli", str(example)],
-        capture_output=True, text=True, check=False,
+        capture_output=True,
+        text=True,
+        check=False,
     )
     assert rc.returncode == 0
     assert "hello from trinary" in rc.stdout
@@ -122,7 +129,9 @@ def test_cli_runs_py_file(tmp_path: Path) -> None:
     p.write_text('print("hello from python via tripy")\n', encoding="utf-8")
     rc = subprocess.run(
         [sys.executable, "-m", "tripy.cli", str(p)],
-        capture_output=True, text=True, check=False,
+        capture_output=True,
+        text=True,
+        check=False,
     )
     assert rc.returncode == 0
     assert "hello from python via tripy" in rc.stdout
@@ -132,7 +141,9 @@ def test_cli_runs_prime_tri_example() -> None:
     example = ROOT / "language" / "examples" / "prime.tri"
     rc = subprocess.run(
         [sys.executable, "-m", "tripy.cli", str(example)],
-        capture_output=True, text=True, check=False,
+        capture_output=True,
+        text=True,
+        check=False,
     )
     assert rc.returncode == 0
     assert "[trinary] prime:" in rc.stdout
@@ -143,7 +154,9 @@ def test_cli_runs_multiple_kernel_statements(tmp_path: Path) -> None:
     p.write_text("prime(100)\nprime(100)\n", encoding="utf-8")
     rc = subprocess.run(
         [sys.executable, "-m", "tripy.cli", str(p)],
-        capture_output=True, text=True, check=False,
+        capture_output=True,
+        text=True,
+        check=False,
     )
     assert rc.returncode == 0
     assert rc.stdout.count("[trinary] prime:") == 2
@@ -154,7 +167,9 @@ def test_cli_flushes_kernel_queue_before_print(tmp_path: Path) -> None:
     p.write_text('prime(100)\nprint("marker")\nprime(100)\n', encoding="utf-8")
     rc = subprocess.run(
         [sys.executable, "-m", "tripy.cli", str(p)],
-        capture_output=True, text=True, check=False,
+        capture_output=True,
+        text=True,
+        check=False,
     )
     assert rc.returncode == 0
     lines = [line.strip() for line in rc.stdout.splitlines() if line.strip()]
@@ -171,7 +186,10 @@ def test_cli_experimental_opt_can_dedupe_adjacent_prime(tmp_path: Path) -> None:
     env["TRINARY_OPT_ALLOW_OBSERVABLE"] = "1"
     rc = subprocess.run(
         [sys.executable, "-m", "tripy.cli", str(p)],
-        capture_output=True, text=True, check=False, env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+        env=env,
     )
     assert rc.returncode == 0
     assert rc.stdout.count("[trinary] prime:") == 1
@@ -184,7 +202,10 @@ def test_cli_opt_trace_emits_telemetry(tmp_path: Path) -> None:
     env["TRINARY_OPT_TRACE"] = "1"
     rc = subprocess.run(
         [sys.executable, "-m", "tripy.cli", str(p)],
-        capture_output=True, text=True, check=False, env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+        env=env,
     )
     assert rc.returncode == 0
     assert "[tri][opt] seen=" in rc.stderr

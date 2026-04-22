@@ -17,6 +17,7 @@ Public API:
     tripy.version() -> str
     @tripy.accelerate
 """
+
 from __future__ import annotations
 
 from . import _core

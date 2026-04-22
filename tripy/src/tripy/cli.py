@@ -14,6 +14,7 @@ Contract (frozen in architecture §1.2 / §4):
     tripy --version
     tripy --help
 """
+
 from __future__ import annotations
 
 import json
@@ -56,9 +57,36 @@ Legacy direct forms (still valid):
 
 
 def _cmd_braincore(argv: Sequence[str]) -> int:
-    neurons = int(argv[0]) if len(argv) > 0 else 4_000_000
-    iters   = int(argv[1]) if len(argv) > 1 else 1000
-    result = runtime.braincore(neurons=neurons, iterations=iters)
+    neurons = 4_000_000
+    iters = 1000
+    threshold = 200
+    positional: list[str] = []
+    i = 0
+    while i < len(argv):
+        arg = argv[i]
+        if arg == "--neurons" and i + 1 < len(argv):
+            neurons = int(argv[i + 1])
+            i += 2
+            continue
+        if arg == "--iters" and i + 1 < len(argv):
+            iters = int(argv[i + 1])
+            i += 2
+            continue
+        if arg == "--threshold" and i + 1 < len(argv):
+            threshold = int(argv[i + 1])
+            i += 2
+            continue
+        positional.append(arg)
+        i += 1
+    if len(positional) > 0:
+        neurons = int(positional[0])
+    if len(positional) > 1:
+        iters = int(positional[1])
+    result = runtime.braincore(
+        neurons=neurons,
+        iterations=iters,
+        threshold=threshold,
+    )
     print(json.dumps(result, indent=2))
     return 0
 
@@ -75,6 +103,7 @@ def _cmd_bench(_argv: Sequence[str]) -> int:
 
 def _cmd_repl(_argv: Sequence[str]) -> int:
     import code
+
     banner = (
         f"TriPy {__version__} — {runtime.version()}\n"
         "Type `.tri <src>` to evaluate a .tri snippet.  Ctrl-D / Ctrl-Z to exit."
@@ -127,9 +156,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = list(sys.argv[1:] if argv is None else argv)
     args, updates = _extract_runtime_opt_flags(args)
     env_keys = ("TRINARY_OPT_EXPERIMENTAL", "TRINARY_OPT_ALLOW_OBSERVABLE", "TRINARY_OPT_TRACE")
-    prev = {k: os.environ.get(k) for k in env_keys}
-    for k, v in updates.items():
-        os.environ[k] = v
+    prev: dict[str, str | None] = {k: os.environ.get(k) for k in env_keys}
+    for key, value in updates.items():
+        os.environ[key] = value
 
     try:
         if not args or args[0] in ("-h", "--help"):
@@ -156,11 +185,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(f"error: unknown argument: {head}\n\n{USAGE}", file=sys.stderr)
         return 2
     finally:
-        for k, v in prev.items():
-            if v is None:
-                os.environ.pop(k, None)
+        for key, prev_value in prev.items():
+            if prev_value is None:
+                os.environ.pop(key, None)
             else:
-                os.environ[k] = v
+                os.environ[key] = prev_value
 
 
 if __name__ == "__main__":
