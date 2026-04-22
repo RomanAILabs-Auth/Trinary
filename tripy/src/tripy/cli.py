@@ -26,13 +26,13 @@ from collections.abc import Sequence
 from . import __version__, runtime
 
 USAGE = """\
-tripy — Python front-end for the Trinary machine-code engine
+tripy - Python front-end for the Trinary machine-code engine
 
 Usage:
   tripy [opt flags] <file.py>   Run Python file; @accelerate routes to kernels.
   tripy [opt flags] <file.tri>  Compile and run a .tri program.
   tripy [opt flags] braincore [N] [ITER]    Canonical benchmark.
-  tripy [opt flags] bench       Full benchmark suite → JSON.
+  tripy [opt flags] bench       Full benchmark suite -> JSON.
   tripy [opt flags] repl        Interactive REPL (Python + .tri).
   tripy [opt flags] --version   Engine + package version.
   tripy [opt flags] --features  Detected CPU features.
@@ -48,7 +48,7 @@ Legacy direct forms (still valid):
   tripy <file.py>               Run a Python file; @accelerate routes to kernels.
   tripy <file.tri>              Compile and run a .tri program.
   tripy braincore [N] [ITER]    Canonical 8-bit neuromorphic benchmark.
-  tripy bench                   Full benchmark suite → JSON.
+  tripy bench                   Full benchmark suite -> JSON.
   tripy repl                    Interactive REPL (Python + .tri).
   tripy --version               Engine + package version.
   tripy --features              Detected CPU features.
@@ -105,7 +105,7 @@ def _cmd_repl(_argv: Sequence[str]) -> int:
     import code
 
     banner = (
-        f"TriPy {__version__} — {runtime.version()}\n"
+        f"TriPy {__version__} - {runtime.version()}\n"
         "Type `.tri <src>` to evaluate a .tri snippet.  Ctrl-D / Ctrl-Z to exit."
     )
     ns = {"tripy": sys.modules[__package__], "runtime": runtime}

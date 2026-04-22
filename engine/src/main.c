@@ -22,7 +22,7 @@
 
 static void print_help(void) {
     fputs(
-        "trinary — machine-code kernels for lattice/neuromorphic compute\n"
+        "trinary - machine-code kernels for lattice/neuromorphic compute\n"
         "\n"
         "Usage:\n"
         "  trinary <file.tri>\n"

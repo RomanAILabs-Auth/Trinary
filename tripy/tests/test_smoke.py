@@ -88,6 +88,16 @@ def test_accelerate_unknown_body_is_passthrough() -> None:
     assert plain_python(21) == 42
 
 
+def test_interference_search_alias() -> None:
+    assert tripy.interference_search(100, 42) == 42
+    assert tripy.interference_search(100, 100) == -1
+
+
+def test_engine_facade_search_lattice() -> None:
+    assert tripy.engine.search_lattice(100, 77) == 77
+    assert tripy.engine.search_lattice(100, -1) == -1
+
+
 def test_cli_version() -> None:
     rc = subprocess.run(
         [sys.executable, "-m", "tripy.cli", "--version"],

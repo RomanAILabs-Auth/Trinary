@@ -29,18 +29,38 @@ from .runtime import (
     harding_gate,
     lattice_flip,
     run_tri,
+    search_lattice,
     version,
 )
+
+
+def interference_search(space_size: int, target: int) -> int:
+    """Compatibility alias for older search demo scripts."""
+    return search_lattice(space_size, target)
+
+
+class _EngineFacade:
+    """Small compatibility surface for scripts using `tripy.engine.*`."""
+
+    @staticmethod
+    def search_lattice(space_size: int, target: int) -> int:
+        return search_lattice(space_size, target)
+
+
+engine = _EngineFacade()
 
 __all__ = [
     "_core",
     "accelerate",
     "active_variant",
     "braincore",
+    "engine",
     "features",
     "harding_gate",
+    "interference_search",
     "lattice_flip",
     "run_tri",
+    "search_lattice",
     "version",
 ]
 

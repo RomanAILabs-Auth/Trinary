@@ -75,3 +75,16 @@ def lattice_flip(bits: int = 1 << 24, iterations: int = 1000) -> LatticeFlipResu
 def run_tri(path: str) -> int:
     """Execute a .tri file through the Trinary compiler. Returns status (0 = OK)."""
     return _core.run_tri(path)
+
+
+def search_lattice(space_size: int, target: int) -> int:
+    """Search index-space [0, space_size) for target.
+
+    This is a utility shim for compatibility with older scripts that expect a
+    lattice-search style API. It is not a dedicated Trinary kernel path.
+    """
+    if space_size < 0:
+        raise ValueError("space_size must be >= 0")
+    if target < 0 or target >= space_size:
+        return -1
+    return target
